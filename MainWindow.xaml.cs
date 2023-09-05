@@ -23,6 +23,8 @@ namespace gruppe_2_easyword
         public MainWindow()
         {
             InitializeComponent();
+            
+            
         }
     }
 }
