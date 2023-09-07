@@ -23,8 +23,7 @@ namespace gruppe_2_easyword
         public MainWindow()
         {
             InitializeComponent();
-            MessageBox.Show("Test");
-
+            MessageBox.Show("Test\nErstellt von David.Reichert, Duvud.Ponjevic, Tyrone.Abu, Maximilian.Läpple\n\nVersion: 0.1\nDatum: 07.09.2023");
         }
     }
 }
