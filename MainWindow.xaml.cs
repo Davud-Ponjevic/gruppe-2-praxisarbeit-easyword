@@ -16,42 +16,66 @@ using System.Windows.Shapes;
 using System.IO;
 using gruppe_2_easyword;
 
+
 namespace Transalto
 {
     public partial class MainWindow : Window
     {
-        Translator translator;
-        string currentWord;  // Dies speichert das aktuelle Wort, das übersetzt werden soll
+        private Translator translator;
+        private string currentWord;
+        private string[] data;
+        private int currentIndex = 0;  // Index des aktuellen Worts
+        private bool translateToY = true;  // Übersetzungsrichtung (true: X nach Y, false: Y nach X)
 
         public MainWindow()
         {
             InitializeComponent();
 
-            // Laden Sie die CSV-Datei und erstellen Sie den Übersetzer
-            string[] data = File.ReadAllLines("C:\\Users\\david\\OneDrive\\Desktop\\Arbeit.csv");
+            data = File.ReadAllLines("C:\\Users\\david\\OneDrive\\Desktop\\Arbeit.csv");
             translator = new Translator(data);
+
+            // Setzen Sie das Wort beim Start der Anwendung
+            SetNextWord();
         }
 
-        // Dies könnte ein Ereignishandler sein, der ausgelöst wird, wenn Sie die Übersetzungsrichtung ändern wollen
-        private void ChangeTranslationDirection(object sender, RoutedEventArgs e)
+        private void SetNextWord()
         {
-            // Beispiel: Holen Sie sich das nächste Wort aus der CSV-Datei (dies kann erweitert werden)
-            currentWord = data[0].Split(';')[0];  // Nehmen Sie das erste Wort als Beispiel
+            if (currentIndex >= data.Length) // Wenn am Ende der Liste, zurück zum Anfang
+            {
+                currentIndex = 0;
+            }
 
-            // Zeigen Sie das Wort im TextBlock an
+            currentWord = data[currentIndex].Split(';')[translateToY ? 0 : 1];
             WordToTrans.Text = currentWord;
+            currentIndex++;  // Erhöhen Sie den Index für das nächste Mal
+        }
+
+        private void Switchlangu(object sender, RoutedEventArgs e)
+        {
+            translateToY = !translateToY;  // Übersetzungsrichtung umschalten
+            SetNextWord();
         }
 
         private void TestResu(object sender, RoutedEventArgs e)
         {
             string userTranslation = WordTransResu.Text;
-            string result = translator.CheckXToY(currentWord, userTranslation);  // Für Deutsch nach Englisch
-                                                                                 // Oder: 
-                                                                                 // string result = translator.CheckYToX(currentWord, userTranslation);  // Für Englisch nach Deutsch
+            string result;
 
-            // Zeigen Sie das Ergebnis an (z.B. in einem MessageBox oder einem anderen TextBlock)
+            if (translateToY)
+            {
+                result = translator.CheckXToY(currentWord, userTranslation);  // Für Deutsch nach Englisch
+            }
+            else
+            {
+                result = translator.CheckYToX(currentWord, userTranslation);  // Für Englisch nach Deutsch
+            }
+
+            // Zeigen Sie das Ergebnis an
             MessageBox.Show(result);
+            WordTransResu.Text = "";
+
+            SetNextWord();  // Wechseln Sie das Wort nach dem Überprüfen der Übersetzung
         }
     }
-
 }
+

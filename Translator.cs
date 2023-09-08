@@ -7,48 +7,51 @@ using System.Windows.Automation;
 
 namespace gruppe_2_easyword
 {
-    public class Translator
-    {
-        private Dictionary<string, List<string>> de_to_eng = new Dictionary<string, List<string>>();
-        private Dictionary<string, List<string>> eng_to_de = new Dictionary<string, List<string>>();
-
-        public Translator(string[] data)
+    
+    
+        public class Translator
         {
-            foreach (string entry in data)
+            private Dictionary<string, List<string>> x_to_y = new Dictionary<string, List<string>>();
+            private Dictionary<string, List<string>> y_to_x = new Dictionary<string, List<string>>();
+
+            public Translator(string[] data)
             {
-                string[] parts = entry.Split(';');
-                string x = parts[0];
-                string y = parts[1];
+                foreach (string entry in data)
+                {
+                    string[] parts = entry.Split(';');
+                    string x = parts[0];
+                    string y = parts[1];
 
-                if (!de_to_eng.ContainsKey(x))
-                    de_to_eng[x] = new List<string>();
-                de_to_eng[x].Add(y);
+                    if (!x_to_y.ContainsKey(x))
+                        x_to_y[x] = new List<string>();
+                    x_to_y[x].Add(y);
 
-                if (!eng_to_de.ContainsKey(y))
-                    eng_to_de[y] = new List<string>();
-                eng_to_de[y].Add(x);
+                    if (!y_to_x.ContainsKey(y))
+                        y_to_x[y] = new List<string>();
+                    y_to_x[y].Add(x);
+                }
+            }
+
+            private string Check(string word, Dictionary<string, List<string>> wordDict, string userTranslation)
+            {
+                string translations = string.Join(";", wordDict[word]);
+
+                if (wordDict[word].Contains(userTranslation))
+                    return $"Richtig! Mögliche Übersetzungen von {word} sind: {translations}";
+                else
+                    return $"Falsch! Mögliche Übersetzungen von {word} sind: {translations}";
+            }
+
+            public string CheckXToY(string word, string userTranslation)
+            {
+                return Check(word, x_to_y, userTranslation);
+            }
+
+            public string CheckYToX(string word, string userTranslation)
+            {
+                return Check(word, y_to_x, userTranslation);
             }
         }
+    
 
-        private string Check(string word, Dictionary<string, List<string>> wordDict, string userTranslation)
-        {
-            string translations = string.Join(";", wordDict[word]);
-
-            if (wordDict[word].Contains(userTranslation))
-                return $"Richtig! Mögliche Übersetzungen von {word} sind: {translations}";
-            else
-                return $"Falsch! Mögliche Übersetzungen von {word} sind: {translations}";
-        }
-
-
-        public void CheckdeToeng(string word)
-        {
-            Check(word, de_to_eng);
-        }
-
-        public void CheckYToX(string word)
-        {
-            Check(word, eng_to_de);
-        }
-    }
 }
