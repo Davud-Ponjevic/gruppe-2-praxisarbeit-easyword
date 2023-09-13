@@ -27,6 +27,11 @@ namespace Transalto
         private int currentIndex = 0;  // Index des aktuellen Worts
         private bool translateToY = true;  // Übersetzungsrichtung (true: X nach Y, false: Y nach X)
 
+        // In Ihrer MainWindow Klasse:
+
+        // Eine Liste von noch nicht korrekt übersetzten Wörtern
+        private List<string> wordsToAsk;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -35,26 +40,30 @@ namespace Transalto
             
             translator = new Translator(data);
 
-            // Setzen Sie das Wort beim Start der Anwendung
+            // Initialisieren Sie die Liste mit allen Wörtern aus der CSV-Datei
+            wordsToAsk = new List<string>(data);
+
+            // Setzen Sie das erste Wort
             SetNextWord();
         }
 
         private void SetNextWord()
         {
-            if (currentIndex >= data.Length) // Wenn am Ende der Liste, zurück zum Anfang
+            // Wenn alle Wörter korrekt übersetzt wurden
+            if (wordsToAsk.Count == 0)
             {
-                currentIndex = 0;
+                MessageBox.Show("Alle Wörter wurden korrekt übersetzt!");
+                // Optional: Schließen Sie die Anwendung oder laden Sie eine neue Liste
+                this.Close();
+                return;
             }
 
-            currentWord = data[currentIndex].Split(';')[translateToY ? 0 : 1];
-            WordToTrans.Text = currentWord;
-            currentIndex++;  // Erhöhen Sie den Index für das nächste Mal
-        }
+            // Wählen Sie zufällig ein Wort aus der Liste
+            Random random = new Random();
+            currentIndex = random.Next(0, wordsToAsk.Count);
 
-        private void Switchlangu(object sender, RoutedEventArgs e)
-        {
-            translateToY = !translateToY;  // Übersetzungsrichtung umschalten
-            SetNextWord();
+            currentWord = wordsToAsk[currentIndex].Split(';')[translateToY ? 0 : 1];
+            WordToTrans.Text = currentWord;
         }
 
         private void TestResu(object sender, RoutedEventArgs e)
@@ -75,8 +84,27 @@ namespace Transalto
             MessageBox.Show(result);
             WordTransResu.Text = "";
 
+            // Wenn die Übersetzung korrekt war, entfernen Sie das Wort aus der Liste
+            if (!result.StartsWith("Falsch"))
+            {
+                wordsToAsk.RemoveAt(currentIndex);
+            }
+
             SetNextWord();  // Wechseln Sie das Wort nach dem Überprüfen der Übersetzung
         }
+        private void Switchlangu(object sender, RoutedEventArgs e)
+        {
+            translateToY = !translateToY;  // Übersetzungsrichtung umschalten
+            SetNextWord();
+        }
+        private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+
+
+        }
+
+
     }
 }
 
