@@ -31,7 +31,9 @@ namespace Transalto
         {
             InitializeComponent();
 
+            
             data = File.ReadAllLines("C:\\Users\\Max_ipso\\Downloads\\Arbeit.csv");
+            
             translator = new Translator(data);
 
             // Setzen Sie das Wort beim Start der Anwendung
