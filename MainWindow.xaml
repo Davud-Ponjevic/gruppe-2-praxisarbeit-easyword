@@ -13,6 +13,13 @@
         <Button Content="Switch Language" HorizontalAlignment="Left" Height="25" Margin="302,254,0,0" VerticalAlignment="Top" Width="105" Click="Switchlangu"/>
         <Label Content="Zu übersetzen" HorizontalAlignment="Left" Height="30" Margin="200,64,0,0" VerticalAlignment="Top" Width="100"/>
         <Label Content="Übersetzung eingeben" HorizontalAlignment="Left" Height="35" Margin="200,149,0,0" VerticalAlignment="Top" Width="130"/>
+        <RichTextBox IsReadOnly="True" TextChanged="RichTextBox_TextChanged" Margin="537,336,0,0">
+            <FlowDocument>
+                <Paragraph>David.R Davud.P Maximilian.L Tyrone.A</Paragraph>
+                <Paragraph>Version: 0.1</Paragraph>
+                <Paragraph>Erstellt am 13.09.2023</Paragraph>
+            </FlowDocument>
+        </RichTextBox>
 
     </Grid>
 </Window>

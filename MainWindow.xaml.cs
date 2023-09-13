@@ -31,7 +31,7 @@ namespace Transalto
         {
             InitializeComponent();
 
-            data = File.ReadAllLines("C:\\Users\\david\\OneDrive\\Desktop\\Arbeit.csv");
+            data = File.ReadAllLines("C:\\Users\\Max_ipso\\Downloads\\Arbeit.csv");
             translator = new Translator(data);
 
             // Setzen Sie das Wort beim Start der Anwendung
@@ -75,6 +75,11 @@ namespace Transalto
             WordTransResu.Text = "";
 
             SetNextWord();  // Wechseln Sie das Wort nach dem Überprüfen der Übersetzung
+        }
+
+        private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }
