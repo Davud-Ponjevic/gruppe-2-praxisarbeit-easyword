@@ -15,6 +15,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using gruppe_2_easyword;
+using Microsoft.Win32;
+using System.IO;
 
 
 namespace Transalto
@@ -36,14 +38,28 @@ namespace Transalto
         {
             InitializeComponent();
 
-            data = File.ReadAllLines("C:\\Users\\david\\OneDrive\\Desktop\\Arbeit.csv");
-            translator = new Translator(data);
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "CSV-Datei auswählen";
+            openFileDialog.Filter = "CSV-Dateien (*.csv)|*.csv|Alle Dateien (*.*)|*.*";
 
-            // Initialisieren Sie die Liste mit allen Wörtern aus der CSV-Datei
-            wordsToAsk = new List<string>(data);
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string selectedFilePath = openFileDialog.FileName;
 
-            // Setzen Sie das erste Wort
-            SetNextWord();
+                data = File.ReadAllLines(selectedFilePath);
+                translator = new Translator(data);
+
+                // Initialisieren Sie die Liste mit allen Wörtern aus der CSV-Datei
+                wordsToAsk = new List<string>(data);
+
+                // Setzen Sie das erste Wort
+                SetNextWord();
+            }
+            else
+            {
+                // Optional: Schließen Sie die Anwendung, wenn keine Datei ausgewählt wurde
+                this.Close();
+            }
         }
 
         private void SetNextWord()
