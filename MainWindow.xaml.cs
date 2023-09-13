@@ -36,7 +36,7 @@ namespace Transalto
         {
             InitializeComponent();
 
-            data = File.ReadAllLines("C:\\Users\\Max_ipso\\Downloads\\Arbeit.csv");
+            data = File.ReadAllLines("C:\\Users\\david\\OneDrive\\Desktop\\Arbeit.csv");
             translator = new Translator(data);
 
             // Initialisieren Sie die Liste mit allen Wörtern aus der CSV-Datei
@@ -95,6 +95,12 @@ namespace Transalto
         {
             translateToY = !translateToY;  // Übersetzungsrichtung umschalten
             SetNextWord();
+        }
+        private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+
+
         }
 
 
