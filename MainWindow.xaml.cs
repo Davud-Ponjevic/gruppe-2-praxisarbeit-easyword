@@ -32,12 +32,16 @@ namespace Transalto
         // In Ihrer MainWindow Klasse:
 
         // Eine Liste von noch nicht korrekt übersetzten Wörtern
-        private List<string> wordsToAsk;
+        private List<string> currentRoundWords;
+        private List<string> nextRoundWords;
+
+
 
         public MainWindow()
         {
             InitializeComponent();
 
+            // Open the file dialog
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Title = "CSV-Datei auswählen";
             openFileDialog.Filter = "CSV-Dateien (*.csv)|*.csv|Alle Dateien (*.*)|*.*";
@@ -45,14 +49,28 @@ namespace Transalto
             if (openFileDialog.ShowDialog() == true)
             {
                 string selectedFilePath = openFileDialog.FileName;
-
                 data = File.ReadAllLines(selectedFilePath);
+
+                // Überprüfen Sie das Format jeder Zeile
+                // Überprüfen Sie das Format jeder Zeile
+                foreach (var line in data)
+                {
+                    var entries = line.Split(';');
+                    if (entries.Length != 2 || string.IsNullOrWhiteSpace(entries[0]) || string.IsNullOrWhiteSpace(entries[1]))
+                    {
+                        MessageBox.Show($"Fehler im Format der Zeile: {line}. Jede Zeile sollte ein deutsches Wort und eine englische Übersetzung haben, getrennt durch ein Semikolon.");
+                        this.Close();
+                        return;  // Beenden Sie die Verarbeitung, wenn ein Fehler gefunden wird
+                    }
+                }
+
+
                 translator = new Translator(data);
 
-                // Initialisieren Sie die Liste mit allen Wörtern aus der CSV-Datei
-                wordsToAsk = new List<string>(data);
+                // Initialisieren Sie die Listen für die aktuelle Runde und die nächste Runde
+                currentRoundWords = new List<string>(data);
+                nextRoundWords = new List<string>();
 
-                // Setzen Sie das erste Wort
                 SetNextWord();
             }
             else
@@ -62,22 +80,31 @@ namespace Transalto
             }
         }
 
+
+
+
         private void SetNextWord()
         {
-            // Wenn alle Wörter korrekt übersetzt wurden
-            if (wordsToAsk.Count == 0)
+            // Wenn alle Wörter der aktuellen Runde abgefragt wurden
+            if (currentRoundWords.Count == 0)
             {
-                MessageBox.Show("Alle Wörter wurden korrekt übersetzt!");
-                // Optional: Schließen Sie die Anwendung oder laden Sie eine neue Liste
-                this.Close();
-                return;
+                if (nextRoundWords.Count == 0)
+                {
+                    MessageBox.Show("Alle Wörter wurden korrekt übersetzt!");
+                    this.Close();
+                    return;
+                }
+
+                // Beginnen Sie die nächste Runde
+                currentRoundWords = new List<string>(nextRoundWords);
+                nextRoundWords.Clear();
             }
 
-            // Wählen Sie zufällig ein Wort aus der Liste
+            // Wählen Sie zufällig ein Wort aus der aktuellen Runde
             Random random = new Random();
-            currentIndex = random.Next(0, wordsToAsk.Count);
+            currentIndex = random.Next(0, currentRoundWords.Count);
 
-            currentWord = wordsToAsk[currentIndex].Split(';')[translateToY ? 0 : 1];
+            currentWord = currentRoundWords[currentIndex].Split(';')[translateToY ? 0 : 1];
             WordToTrans.Text = currentWord;
         }
 
@@ -95,23 +122,27 @@ namespace Transalto
                 result = translator.CheckYToX(currentWord, userTranslation);  // Für Englisch nach Deutsch
             }
 
-            // Zeigen Sie das Ergebnis an
             MessageBox.Show(result);
             WordTransResu.Text = "";
 
-            // Wenn die Übersetzung korrekt war, entfernen Sie das Wort aus der Liste
-            if (!result.StartsWith("Falsch"))
+            // Wenn die Übersetzung falsch war, fügen Sie das Wort zur Liste für die nächste Runde hinzu
+            if (result.StartsWith("Falsch"))
             {
-                wordsToAsk.RemoveAt(currentIndex);
+                nextRoundWords.Add(currentRoundWords[currentIndex]);
             }
+
+            // Entfernen Sie das aktuelle Wort aus der Liste für die aktuelle Runde
+            currentRoundWords.RemoveAt(currentIndex);
 
             SetNextWord();  // Wechseln Sie das Wort nach dem Überprüfen der Übersetzung
         }
+
         private void Switchlangu(object sender, RoutedEventArgs e)
         {
             translateToY = !translateToY;  // Übersetzungsrichtung umschalten
             SetNextWord();
         }
+        
         private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
 
