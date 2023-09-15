@@ -36,6 +36,7 @@ namespace Transalto
         private List<string> nextRoundWords;
 
 
+        // für lables 
         private bool isEnglishToGerman = true;
 
 
