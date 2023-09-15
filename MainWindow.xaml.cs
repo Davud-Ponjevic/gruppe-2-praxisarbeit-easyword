@@ -116,7 +116,7 @@ namespace Transalto
 
         private void TestResu(object sender, RoutedEventArgs e)
         {
-            string userTranslation = WordTransResu.Text;
+            string userTranslation = WordTransResu.Text.ToLower();
             string result;
 
             if (translateToY)
