@@ -5,21 +5,43 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:gruppe_2_easyword"
         mc:Ignorable="d"
-        Title="Easyword" Height="450" Width="800">
+        Title="Easyword" Height="700" Width="1000">
     <Grid>
-        <TextBlock x:Name="WordToTrans" HorizontalAlignment="Left" Height="50" Margin="200,99,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="260"/>
-        <TextBox x:Name="WordTransResu" HorizontalAlignment="Left" Height="33" Margin="200,184,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="260" RenderTransformOrigin="0.5,0.522"/>
-        <Button Content="Antwort Testen" HorizontalAlignment="Left" Height="25" Margin="196,254,0,0" VerticalAlignment="Top" Width="90" Click="TestResu"/>
-        <Button Content="Sprache wechseln" HorizontalAlignment="Left" Height="25" Margin="302,254,0,0" VerticalAlignment="Top" Width="105" Click="Switchlangu"/>
-		<Label x:Name="Label1" Content="Zu übersetzen" HorizontalAlignment="Left" Height="30" Margin="200,64,0,0" VerticalAlignment="Top" Width="160"/>
-		<Label x:Name="Label2" Content="Übersetzung eingeben" HorizontalAlignment="Left" Height="35" Margin="200,149,0,0" VerticalAlignment="Top" Width="200"/>
-		<RichTextBox IsReadOnly="True" TextChanged="RichTextBox_TextChanged" Margin="537,321,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="871*"/>
+            <ColumnDefinition Width="118*"/>
+            <ColumnDefinition Width="11*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="31.617"/>
+            <RowDefinition Height="9.383"/>
+            <RowDefinition Height="Auto" MinHeight="0"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="WordToTrans" Grid.Row="0" Margin="218,13,-176,9" FontSize="24" TextWrapping="Wrap" Text="Zu übersetzen" Grid.ColumnSpan="3"/>
+        <TextBox x:Name="WordTransResu" Grid.Row="4" Margin="18,82,9,426" FontSize="18" TextWrapping="Wrap" Text="" Grid.RowSpan="2"/>
+
+        <Button Content="Antwort Testen" Grid.Row="4" Margin="18,204,79,312" FontSize="16" Click="TestResu" Grid.RowSpan="2"/>
+        <Button Content="Sprache wechseln" Grid.Row="4" Margin="18,294,83,222" FontSize="16" Click="Switchlangu" Grid.RowSpan="2"/>
+
+        <Label x:Name="Label1" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="16" Content="Zu übersetzen" Margin="18,13,0,0" Height="32" Width="110"/>
+        <Label x:Name="Label2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="18,23,0,0" FontSize="16" Content="Übersetzung eingeben" Height="31" Width="170" Grid.Row="5"/>
+
+        <RichTextBox IsReadOnly="True" Grid.Row="4" Margin="18,419,13,10" FontSize="14" Grid.RowSpan="2">
             <FlowDocument>
-                <Paragraph>David.R Davud.P Maximilian.L Tyrone.A</Paragraph>
-                <Paragraph>Version: 0.1</Paragraph>
-                <Paragraph>Erstellt am 13.09.2023</Paragraph>
+                <Paragraph>
+                    David.R Davud.P Maximilian.L Tyrone.A
+                </Paragraph>
+                <Paragraph>
+                    Version: 0.1
+                </Paragraph>
+                <Paragraph>
+                    Erstellt am 13.09.2023
+                </Paragraph>
             </FlowDocument>
         </RichTextBox>
-
     </Grid>
 </Window>
