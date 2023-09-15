@@ -37,7 +37,7 @@ namespace Transalto
 
 
         // für lables 
-        private bool isEnglishToGerman = true;
+        private bool isGermanToEnglish = true;
 
 
 
@@ -147,7 +147,7 @@ namespace Transalto
         {
             translateToY = !translateToY;  // Übersetzungsrichtung umschalten
             SetNextWord();
-            isEnglishToGerman = !isEnglishToGerman;
+            isGermanToEnglish = !isGermanToEnglish;
             SetLanguageLabels();
             
         }
@@ -160,17 +160,17 @@ namespace Transalto
         }
         private void SetLanguageLabels()
         {
-            if (isEnglishToGerman)
+            if (isGermanToEnglish)
             {
                 // Von Englisch nach Deutsch
-                Label1.Content = "Zu übersetzen Englisch";
-                Label2.Content = "Übersetzung eingeben Deutsch";
+                Label1.Content = "Zu übersetzen Deutsch";
+                Label2.Content = "Übersetzung eingeben Englisch";
             }
             else
             {
                 // Von Deutsch nach Englisch
-                Label1.Content = "Zu übersetzen Deutsch";
-                Label2.Content = "Übersetzung eingeben Englisch";
+                Label1.Content = "Zu übersetzen Englisch";
+                Label2.Content = "Übersetzung eingeben Deutsch";
             }
         }
 
