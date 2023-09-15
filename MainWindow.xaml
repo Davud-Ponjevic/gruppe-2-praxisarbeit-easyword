@@ -5,15 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:gruppe_2_easyword"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Easyword" Height="450" Width="800">
     <Grid>
         <TextBlock x:Name="WordToTrans" HorizontalAlignment="Left" Height="50" Margin="200,99,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="260"/>
         <TextBox x:Name="WordTransResu" HorizontalAlignment="Left" Height="33" Margin="200,184,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="260" RenderTransformOrigin="0.5,0.522"/>
-        <Button Content="Check Answer" HorizontalAlignment="Left" Height="25" Margin="196,254,0,0" VerticalAlignment="Top" Width="90" Click="TestResu"/>
-        <Button Content="Switch Language" HorizontalAlignment="Left" Height="25" Margin="302,254,0,0" VerticalAlignment="Top" Width="105" Click="Switchlangu"/>
-        <Label Content="Zu übersetzen" HorizontalAlignment="Left" Height="30" Margin="200,64,0,0" VerticalAlignment="Top" Width="100"/>
-        <Label Content="Übersetzung eingeben" HorizontalAlignment="Left" Height="35" Margin="200,149,0,0" VerticalAlignment="Top" Width="130"/>
-        <RichTextBox IsReadOnly="True" TextChanged="RichTextBox_TextChanged" Margin="537,321,0,0">
+        <Button Content="Antwort Testen" HorizontalAlignment="Left" Height="25" Margin="196,254,0,0" VerticalAlignment="Top" Width="90" Click="TestResu"/>
+        <Button Content="Sprache wechseln" HorizontalAlignment="Left" Height="25" Margin="302,254,0,0" VerticalAlignment="Top" Width="105" Click="Switchlangu"/>
+		<Label x:Name="Label1" Content="Zu übersetzen" HorizontalAlignment="Left" Height="30" Margin="200,64,0,0" VerticalAlignment="Top" Width="160"/>
+		<Label x:Name="Label2" Content="Übersetzung eingeben" HorizontalAlignment="Left" Height="35" Margin="200,149,0,0" VerticalAlignment="Top" Width="200"/>
+		<RichTextBox IsReadOnly="True" TextChanged="RichTextBox_TextChanged" Margin="537,321,0,0">
             <FlowDocument>
                 <Paragraph>David.R Davud.P Maximilian.L Tyrone.A</Paragraph>
                 <Paragraph>Version: 0.1</Paragraph>

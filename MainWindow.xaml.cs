@@ -36,10 +36,14 @@ namespace Transalto
         private List<string> nextRoundWords;
 
 
+        private bool isEnglishToGerman = true;
+
+
 
         public MainWindow()
         {
             InitializeComponent();
+            SetLanguageLabels();
 
             // Open the file dialog
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -64,6 +68,7 @@ namespace Transalto
                     }
                 }
 
+                
 
                 translator = new Translator(data);
 
@@ -141,6 +146,9 @@ namespace Transalto
         {
             translateToY = !translateToY;  // Übersetzungsrichtung umschalten
             SetNextWord();
+            isEnglishToGerman = !isEnglishToGerman;
+            SetLanguageLabels();
+            
         }
         
         private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -149,6 +157,22 @@ namespace Transalto
 
 
         }
+        private void SetLanguageLabels()
+        {
+            if (isEnglishToGerman)
+            {
+                // Von Englisch nach Deutsch
+                Label1.Content = "Zu übersetzen Englisch";
+                Label2.Content = "Übersetzung eingeben Deutsch";
+            }
+            else
+            {
+                // Von Deutsch nach Englisch
+                Label1.Content = "Zu übersetzen Deutsch";
+                Label2.Content = "Übersetzung eingeben Englisch";
+            }
+        }
+
 
 
     }
