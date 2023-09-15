@@ -27,8 +27,8 @@
         <Button Content="Antwort Testen" Grid.Row="4" Margin="18,204,79,312" FontSize="16" Click="TestResu" Grid.RowSpan="2"/>
         <Button Content="Sprache wechseln" Grid.Row="4" Margin="18,294,83,222" FontSize="16" Click="Switchlangu" Grid.RowSpan="2"/>
 
-        <Label x:Name="Label1" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="16" Content="Zu übersetzen" Margin="18,13,0,0" Height="32" Width="110"/>
-        <Label x:Name="Label2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="18,23,0,0" FontSize="16" Content="Übersetzung eingeben" Height="31" Width="170" Grid.Row="5"/>
+        <Label x:Name="Label1" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="16" Content="Zu übersetzen" Margin="18,13,0,0" Height="32" Width="200"/>
+        <Label x:Name="Label2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="18,23,0,0" FontSize="16" Content="Übersetzung eingeben" Height="31" Width="300" Grid.Row="5"/>
 
         <RichTextBox IsReadOnly="True" Grid.Row="4" Margin="18,419,13,10" FontSize="14" Grid.RowSpan="2">
             <FlowDocument>
