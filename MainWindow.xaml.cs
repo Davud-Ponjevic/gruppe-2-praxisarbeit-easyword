@@ -16,7 +16,6 @@ using System.Windows.Shapes;
 using System.IO;
 using gruppe_2_easyword;
 using Microsoft.Win32;
-using System.IO;
 
 
 namespace Transalto
@@ -163,14 +162,14 @@ namespace Transalto
             if (isGermanToEnglish)
             {
                 // Von Englisch nach Deutsch
-                Label1.Content = "Zu übersetzen Deutsch";
-                Label2.Content = "Übersetzung eingeben Englisch";
+                Label1.Content = "Wort übersetztn auf Englisch";
+               
             }
             else
             {
                 // Von Deutsch nach Englisch
-                Label1.Content = "Zu übersetzen Englisch";
-                Label2.Content = "Übersetzung eingeben Deutsch";
+                Label1.Content = "Wort übersetztn auf Deutsch";
+               
             }
         }
 
