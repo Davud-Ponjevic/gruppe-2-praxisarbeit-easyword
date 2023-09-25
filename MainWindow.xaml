@@ -55,12 +55,30 @@
 				</Border>
 			</Popup>
 		</StackPanel>
+        
+
+        <Button Name="FileButton" Width="50" Height="50" Click="OnFileButtonClick" Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10">
+            <Button.Content>
+                <TextBlock Text="📂" FontSize="24"/>
+            </Button.Content>
+        </Button>
+
+        <Popup Name="FilePopup" PlacementTarget="{Binding ElementName=FileButton}" Placement="Bottom" StaysOpen="False">
+            <Border Background="White" BorderBrush="Gray" BorderThickness="1">
+                <StackPanel>
+                    <ListBox Name="FileList"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10">
+                        <Button Content="Neue Datei hinzufügen" Click="AddNewFile"/>
+                        <Button Content="OK" Click="OnFilePopupOkClick" />
+                        <Button Content="Löschen" Click="OnFileDeleteClick" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Popup>
 
 
 
-
-
-		<RichTextBox IsReadOnly="True" Grid.Row="4" Margin="10,10,10,10" FontSize="14" Background="#EEEEEE" BorderBrush="#CCCCCC" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="250" Height="100">
+        <RichTextBox IsReadOnly="True" Grid.Row="4" Margin="10,10,10,10" FontSize="14" Background="#EEEEEE" BorderBrush="#CCCCCC" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="250" Height="100">
 			<FlowDocument>
 				<Paragraph>
 					David.R Davud.P Maximilian.L Tyrone.A

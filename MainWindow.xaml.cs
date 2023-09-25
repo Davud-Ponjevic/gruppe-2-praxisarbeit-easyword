@@ -17,6 +17,8 @@ using System.IO;
 using gruppe_2_easyword;
 using Microsoft.Win32;
 using System.Windows.Threading;
+using Newtonsoft.Json;
+
 
 
 
@@ -24,6 +26,7 @@ namespace Transalto
 {
     public partial class MainWindow : Window
     {
+        #region Listen und OBJ anlegen
         private Translator translator;
         private string currentWord;
         private string[] data;
@@ -45,21 +48,101 @@ namespace Transalto
 
         // für wort statistik
         private Dictionary<string, int> wordMistakes = new Dictionary<string, int>();
+        #endregion
+
+
+        #region Speichern des files
+        // Liste der Dateien
+        private string jsonFilePath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "files.json");
+        private List<string> files = new List<string>();
 
 
 
+        #endregion
+
+        
+        #region MainCode
 
         public MainWindow()
         {
             InitializeComponent();
             SetLanguageLabels();
+            LoadFilesFromJson();
 
-            // Open the file dialog
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Title = "CSV-Datei auswählen";
-            openFileDialog.Filter = "CSV-Dateien (*.csv)|*.csv|Alle Dateien (*.*)|*.*";
+            if(files.Count > 0 ) 
+            {
+                // Wenn bereits Dateien vorhanden sind, laden Sie die Daten aus der ersten Datei in der Liste.
+                foreach (string file in files)
+                {
 
+                    if (!File.Exists(file))
+                    {
+                        // Entfernen Sie die ausgewählte Datei aus der Liste
+                        files.Remove(file);
 
+                        // Speichern Sie die aktualisierte Dateiliste in der JSON-Datei
+                        
+                    }
+                   
+                };
+                SaveFilesToJson();
+
+            }
+
+            if (files.Count == 0)
+            {
+                MessageBoxResult result = MessageBox.Show("Bitte fügen Sie eine Datei hinzu.", "Datei hinzufügen", MessageBoxButton.OKCancel);
+                if (result == MessageBoxResult.OK)
+                {
+                    OpenFileDialog openFileDialog = new OpenFileDialog();
+                    openFileDialog.Title = "CSV-Datei auswählen";
+                    openFileDialog.Filter = "CSV-Dateien (*.csv)|*.csv|Alle Dateien (*.*)|*.*";
+                    if (openFileDialog.ShowDialog() == true)
+                    {
+                        
+                        files.Add(openFileDialog.FileName);
+                        SaveFilesToJson();
+                        data = File.ReadAllLines(openFileDialog.FileName);
+                    }
+                    else
+                    {
+                        // Wenn der Benutzer den Dialog abbricht, ohne eine Datei auszuwählen, schließen Sie das Programm.
+                        this.Close();
+                        return;
+                    }
+                }
+                else
+                {
+                    // Wenn der Benutzer den Dialog abbricht, ohne eine Datei auszuwählen, schließen Sie das Programm.
+                    this.Close();
+                    return;
+                }
+            }
+            else
+            {
+                data = File.ReadAllLines(files[0]);
+            }
+            
+
+            // Überprüfen Sie das Format jeder Zeile
+            foreach (var line in data)
+            {
+                var entries = line.Split(';');
+                if (entries.Length != 2 || string.IsNullOrWhiteSpace(entries[0]) || string.IsNullOrWhiteSpace(entries[1]))
+                {
+                    MessageBox.Show($"Fehler im Format der Zeile: {line}. Jede Zeile sollte ein deutsches Wort und eine englische Übersetzung haben, getrennt durch ein Semikolon.");
+                    this.Close();
+                    return;  // Beenden Sie die Verarbeitung, wenn ein Fehler gefunden wird
+                }
+            }
+
+            translator = new Translator(data);
+
+            // Initialisieren Sie die Listen für die aktuelle Runde und die nächste Runde
+            currentRoundWords = new List<string>(data);
+            nextRoundWords = new List<string>();
+
+            SetNextWord();
 
             #region Timer Konstruktor initialisieren
             //Konstruktor für timer
@@ -67,13 +150,30 @@ namespace Transalto
             feedbackTimer.Interval = TimeSpan.FromSeconds(1.5);
             feedbackTimer.Tick += FeedbackTimer_Tick;
             #endregion
+        }
 
+        #endregion
+
+        #region Functionen zum spreichen und holen der json files
+        void OnFileButtonClick(object sender, RoutedEventArgs e)
+        {
+            // Dateiliste aktualisieren
+            FileList.ItemsSource = files;
+            FilePopup.IsOpen = !FilePopup.IsOpen;
+        }
+
+         void AddNewFile(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
-                string selectedFilePath = openFileDialog.FileName;
-                data = File.ReadAllLines(selectedFilePath);
+                string FullPathOnly = System.IO.Path.GetFullPath(openFileDialog.FileName);
+                files.Add(FullPathOnly);
+                SaveFilesToJson();
 
-                // Überprüfen Sie das Format jeder Zeile
+                // Daten aus der neuen Datei laden
+                data = File.ReadAllLines(openFileDialog.FileName);
+
                 // Überprüfen Sie das Format jeder Zeile
                 foreach (var line in data)
                 {
@@ -81,12 +181,9 @@ namespace Transalto
                     if (entries.Length != 2 || string.IsNullOrWhiteSpace(entries[0]) || string.IsNullOrWhiteSpace(entries[1]))
                     {
                         MessageBox.Show($"Fehler im Format der Zeile: {line}. Jede Zeile sollte ein deutsches Wort und eine englische Übersetzung haben, getrennt durch ein Semikolon.");
-                        this.Close();
                         return;  // Beenden Sie die Verarbeitung, wenn ein Fehler gefunden wird
                     }
                 }
-
-                
 
                 translator = new Translator(data);
 
@@ -95,16 +192,34 @@ namespace Transalto
                 nextRoundWords = new List<string>();
 
                 SetNextWord();
-            }
-            else
-            {
-                // Optional: Schließen Sie die Anwendung, wenn keine Datei ausgewählt wurde
-                this.Close();
+
+                LoadFilesFromJson();  // Laden Sie die aktualisierte Dateiliste
+                FileList.ItemsSource = null;  // Setzen Sie die Datenquelle zurück
+                FileList.ItemsSource = files;  // Weisen Sie die aktualisierte Dateiliste erneut zu
+
             }
         }
 
+         void SaveFilesToJson()
+        {
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(files);
+            File.WriteAllText(jsonFilePath, json); // Verwenden Sie den festgelegten Pfad
+        }
 
-        private void SetNextWord()
+         void LoadFilesFromJson()
+        {
+            if (File.Exists(jsonFilePath)) // Verwenden Sie den festgelegten Pfad
+            {
+                string json = File.ReadAllText(jsonFilePath); // Verwenden Sie den festgelegten Pfad
+                files = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(json);
+
+
+            }
+        }
+        #endregion
+
+        #region Next Word
+         void SetNextWord()
         {
             // Wenn alle Wörter der aktuellen Runde abgefragt wurden
             if (currentRoundWords.Count == 0)
@@ -128,7 +243,10 @@ namespace Transalto
             currentWord = currentRoundWords[currentIndex].Split(';')[translateToY ? 0 : 1];
             WordToTrans.Text = currentWord;
         }
-        private void TestResu(object sender, RoutedEventArgs e)
+        #endregion
+
+        #region testen der Eingabe testResu
+         void TestResu(object sender, RoutedEventArgs e)
         {
             string userTranslation = WordTransResu.Text;
             string tempCurrentWord = currentWord;
@@ -180,9 +298,10 @@ namespace Transalto
             WordTransResu.Text = "";
         }
 
+        #endregion
 
-
-        private void Switchlangu(object sender, RoutedEventArgs e)
+        #region Sprache wächseln
+         void Switchlangu(object sender, RoutedEventArgs e)
         {
             translateToY = !translateToY;  // Übersetzungsrichtung umschalten
             isGermanToEnglish = !isGermanToEnglish;
@@ -194,14 +313,16 @@ namespace Transalto
 
 
         }
+        #endregion
 
-        private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        #region Textbox und lables
+        void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
 
 
 
         }
-        private void SetLanguageLabels()
+        void SetLanguageLabels()
         {
             if (isGermanToEnglish)
             {
@@ -216,8 +337,11 @@ namespace Transalto
                
             }
         }
+        #endregion
+
+        #region bastand zwischen wort wächseln (Timer)
         // eventhandler wegen timer
-        private void FeedbackTimer_Tick(object sender, EventArgs e)
+        void FeedbackTimer_Tick(object sender, EventArgs e)
         {
             WordBorder.Background = new SolidColorBrush(Color.FromRgb(0xE3, 0xF2, 0xFD)); // Setzt den Hintergrund des Borders zurück
             
@@ -232,14 +356,17 @@ namespace Transalto
             SetNextWord();
             
         }
+        #endregion
 
-        private void SaveMistakesToFile()
+        #region Stats von Fehlern
+
+        void SaveMistakesToFile()
         {
             File.WriteAllLines("mistakes.txt", wordMistakes.Select(kvp => $"{kvp.Key};{kvp.Value}"));
         }
 
         
-        private void LoadMistakesFromFile()
+        void LoadMistakesFromFile()
         {
             if (File.Exists("mistakes.txt"))
             {
@@ -251,27 +378,90 @@ namespace Transalto
             }
         }
 
-        private void ShowStats(object sender, RoutedEventArgs e)
+        void ShowStats(object sender, RoutedEventArgs e)
         {
             var stats = string.Join("\n", wordMistakes.Select(kvp => $"{kvp.Key}: {kvp.Value} mal"));
             MessageBox.Show(stats);
         }
 
-        private void ResetStats(object sender, RoutedEventArgs e)
+        void ResetStats(object sender, RoutedEventArgs e)
         {
             wordMistakes.Clear();
             SaveMistakesToFile();
         }
 
 
-        private void OnStatsButtonClick(object sender, RoutedEventArgs e)
+        void OnStatsButtonClick(object sender, RoutedEventArgs e)
         {
             StatsPopup.IsOpen = !StatsPopup.IsOpen;
         }
 
+        #endregion
 
+        #region Neue wörter akzeptieren und nutzuen
+        private void OnFilePopupOkClick(object sender, RoutedEventArgs e)
+        {
+            // Überprüfen Sie, ob eine Datei aus der Liste ausgewählt wurde
+            if (FileList.SelectedItem != null)
+            {
+                string selectedFile = FileList.SelectedItem.ToString();
 
+                // Laden Sie die Daten aus der ausgewählten Datei
+                data = File.ReadAllLines(selectedFile);
 
+                // Überprüfen Sie das Format jeder Zeile
+                foreach (var line in data)
+                {
+                    var entries = line.Split(';');
+                    if (entries.Length != 2 || string.IsNullOrWhiteSpace(entries[0]) || string.IsNullOrWhiteSpace(entries[1]))
+                    {
+                        MessageBox.Show($"Fehler im Format der Zeile: {line}. Jede Zeile sollte ein deutsches Wort und eine englische Übersetzung haben, getrennt durch ein Semikolon.");
+                        return;  // Beenden Sie die Verarbeitung, wenn ein Fehler gefunden wird
+                    }
+                }
+
+                translator = new Translator(data);
+
+                // Initialisieren Sie die Listen für die aktuelle Runde und die nächste Runde
+                currentRoundWords = new List<string>(data);
+                nextRoundWords = new List<string>();
+
+                SetNextWord();
+
+                // Schließen Sie das Popup
+                FilePopup.IsOpen = false;
+            }
+            else
+            {
+                MessageBox.Show("Bitte wählen Sie eine Datei aus der Liste aus.");
+            }
+        }
+        #endregion
+
+        #region File delete
+        private void OnFileDeleteClick(object sender, RoutedEventArgs e)
+        {
+            // Überprüfen Sie, ob eine Datei aus der Liste ausgewählt wurde
+            if (FileList.SelectedItem != null)
+            {
+                string selectedFile = FileList.SelectedItem.ToString();
+
+                // Entfernen Sie die ausgewählte Datei aus der Liste
+                files.Remove(selectedFile);
+
+                // Aktualisieren Sie die Dateiliste im Popup
+                FileList.ItemsSource = null;
+                FileList.ItemsSource = files;
+
+                // Speichern Sie die aktualisierte Dateiliste in der JSON-Datei
+                SaveFilesToJson();
+            }
+            else
+            {
+                MessageBox.Show("Bitte wählen Sie eine Datei aus der Liste aus, die Sie löschen möchten.");
+            }
+        }
+        #endregion
 
     }
 }
