@@ -6,18 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.IO;
 using gruppe_2_easyword;
 using Microsoft.Win32;
 using System.Windows.Threading;
-using Newtonsoft.Json;
+
 
 
 
@@ -69,7 +63,9 @@ namespace Transalto
             SetLanguageLabels();
             LoadFilesFromJson();
 
-            if(files.Count > 0 ) 
+            int fileCount = files.Count;
+
+            if(fileCount > 0 ) 
             {
                 // Wenn bereits Dateien vorhanden sind, laden Sie die Daten aus der ersten Datei in der Liste.
                 foreach (string file in files)
@@ -85,7 +81,12 @@ namespace Transalto
                     }
                    
                 };
-                SaveFilesToJson();
+                if(files.Count < fileCount)
+                {
+                    SaveFilesToJson();
+                    fileCount = files.Count;
+                }
+                
 
             }
 
