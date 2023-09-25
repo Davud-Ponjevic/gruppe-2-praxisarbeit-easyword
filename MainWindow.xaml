@@ -17,7 +17,7 @@
 		</Grid.RowDefinitions>
 
 
-		<Border Grid.Row="0" Background="#E3F2FD" CornerRadius="15" Padding="30" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+		<Border x:Name="WordBorder" Grid.Row="0" Background="#E3F2FD" CornerRadius="15" Padding="30" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center"
         BorderBrush="#90CAF9" BorderThickness="1.5" Width="600" Height="200">
 			<Border.Effect>
 				<DropShadowEffect Color="Gray" Direction="330" BlurRadius="15" Opacity="0.6" ShadowDepth="10"/>
@@ -29,11 +29,14 @@
 
 		<Label x:Name="Label1" Grid.Row="1" FontSize="16" Content="Wort übersetzten" Foreground="#555555" Margin="10,20,10,10" HorizontalAlignment="Center"/>
 		<TextBox x:Name="WordTransResu" Grid.Row="2" Margin="10" FontSize="18" TextWrapping="Wrap" BorderBrush="#AAAAAA" Padding="10" HorizontalAlignment="Center" Width="400"/>
-
+		
 		<StackPanel Grid.Row="3" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10">
 			<Button Content="Antwort Testen" FontSize="16" Click="TestResu" Background="#2196F3" Foreground="White" Padding="20,10" BorderThickness="0" Margin="0,0,10,0"/>
 			<Button Content="Sprache wechseln" FontSize="16" Click="Switchlangu" Background="#4CAF50" Foreground="White" Padding="20,10" BorderThickness="0"/>
 		</StackPanel>
+		
+		<CheckBox x:Name="IgnoreCaseCheckBox" Grid.Row="4" Content="Groß/klein ignorieren" HorizontalAlignment="Center" Margin="10,10,10,0" Foreground="#555555" FontSize="16"/>
+
 
 		<RichTextBox IsReadOnly="True" Grid.Row="4" Margin="10,10,10,10" FontSize="14" Background="#EEEEEE" BorderBrush="#CCCCCC" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="250" Height="100">
 			<FlowDocument>

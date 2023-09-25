@@ -32,17 +32,30 @@ namespace gruppe_2_easyword
                 }
             }
 
-            private string Check(string word, Dictionary<string, List<string>> wordDict, string userTranslation)
-            {
-                string translations = string.Join(";", wordDict[word]);
+        private string Check(string word, Dictionary<string, List<string>> wordDict, string userTranslation)
+        {
+            // Konvertieren Sie das Wort und die Benutzerübersetzung in Kleinbuchstaben
+            string lowerCaseWord = word.ToLower();
+            string lowerCaseTranslation = userTranslation.ToLower();
 
-                if (wordDict[word].Contains(userTranslation))
-                    return $"Richtig! Mögliche Übersetzungen von {word} sind: {translations}";
-                else
-                    return $"Falsch! Mögliche Übersetzungen von {word} sind: {translations}";
+            // Überprüfen Sie, ob das Wort im Wörterbuch vorhanden ist
+            if (!wordDict.ContainsKey(lowerCaseWord))
+            {
+                return $"Das Wort {word} wurde nicht im Wörterbuch gefunden.";
             }
 
-            public string CheckXToY(string word, string userTranslation)
+            string translations = string.Join(";", wordDict[lowerCaseWord]);
+
+            if (wordDict[lowerCaseWord].Any(t => t.Equals(lowerCaseTranslation, StringComparison.OrdinalIgnoreCase)))
+                return $"Richtig! Mögliche Übersetzungen von {word} sind: {translations}";
+            else
+                return $"Falsch! Mögliche Übersetzungen von {word} sind: {translations}";
+        }
+
+
+
+
+        public string CheckXToY(string word, string userTranslation)
             {
                 return Check(word, x_to_y, userTranslation);
             }

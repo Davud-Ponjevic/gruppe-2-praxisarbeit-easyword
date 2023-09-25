@@ -16,6 +16,8 @@ using System.Windows.Shapes;
 using System.IO;
 using gruppe_2_easyword;
 using Microsoft.Win32;
+using System.Windows.Threading;
+
 
 
 namespace Transalto
@@ -38,6 +40,9 @@ namespace Transalto
         // für lables 
         private bool isGermanToEnglish = true;
 
+        // Timer wegen rückmeldung
+        private DispatcherTimer feedbackTimer;
+
 
 
         public MainWindow()
@@ -49,6 +54,15 @@ namespace Transalto
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Title = "CSV-Datei auswählen";
             openFileDialog.Filter = "CSV-Dateien (*.csv)|*.csv|Alle Dateien (*.*)|*.*";
+
+
+
+            #region Timer Konstruktor initialisieren
+            //Konstruktor für timer
+            feedbackTimer = new DispatcherTimer();
+            feedbackTimer.Interval = TimeSpan.FromSeconds(3);
+            feedbackTimer.Tick += FeedbackTimer_Tick;
+            #endregion
 
             if (openFileDialog.ShowDialog() == true)
             {
@@ -112,45 +126,64 @@ namespace Transalto
             currentWord = currentRoundWords[currentIndex].Split(';')[translateToY ? 0 : 1];
             WordToTrans.Text = currentWord;
         }
-
         private void TestResu(object sender, RoutedEventArgs e)
         {
-            string userTranslation = WordTransResu.Text.ToLower();
+            string userTranslation = WordTransResu.Text;
+            string tempCurrentWord = currentWord;
             string result;
+
+            if (IgnoreCaseCheckBox.IsChecked == true)
+            {
+                // Wenn die Checkbox aktiviert ist, konvertieren Sie beide Strings in Kleinbuchstaben
+                userTranslation = userTranslation.ToLower();
+                tempCurrentWord = tempCurrentWord.ToLower();
+            }
 
             if (translateToY)
             {
-                result = translator.CheckXToY(currentWord, userTranslation);  // Für Deutsch nach Englisch
+                result = translator.CheckXToY(tempCurrentWord, userTranslation);  // Für Deutsch nach Englisch
             }
             else
             {
-                result = translator.CheckYToX(currentWord, userTranslation);  // Für Englisch nach Deutsch
+                result = translator.CheckYToX(tempCurrentWord, userTranslation);  // Für Englisch nach Deutsch
             }
 
-            MessageBox.Show(result);
-            WordTransResu.Text = "";
-
-            // Wenn die Übersetzung falsch war, fügen Sie das Wort zur Liste für die nächste Runde hinzu
-            if (result.StartsWith("Falsch"))
-            {
-                nextRoundWords.Add(currentRoundWords[currentIndex]);
-            }
+            // Speichern Sie das aktuelle Wort, bevor Sie es aus der Liste entfernen
+            string currentWordLine = currentRoundWords[currentIndex];
 
             // Entfernen Sie das aktuelle Wort aus der Liste für die aktuelle Runde
             currentRoundWords.RemoveAt(currentIndex);
 
-            SetNextWord();  // Wechseln Sie das Wort nach dem Überprüfen der Übersetzung
+            // Wenn die Übersetzung falsch war, fügen Sie das Wort zur Liste für die nächste Runde hinzu
+            if (result.StartsWith("Falsch"))
+            {
+                WordBorder.Background = new SolidColorBrush(Color.FromRgb(0xFF, 0xA0, 0xA0)); // Setzt den Hintergrund des Borders auf ein helleres Rot
+                nextRoundWords.Add(currentWordLine);
+            }
+            else
+            {
+                WordBorder.Background = new SolidColorBrush(Color.FromRgb(0xA0, 0xFF, 0xA0)); // Setzt den Hintergrund des Borders auf ein helleres Grün
+            }
+
+            feedbackTimer.Start();  // Startet den Timer, um die Farbe nach 3 Sekunden zurückzusetzen
+            WordTransResu.Text = "";
         }
+
+
 
         private void Switchlangu(object sender, RoutedEventArgs e)
         {
             translateToY = !translateToY;  // Übersetzungsrichtung umschalten
-            SetNextWord();
             isGermanToEnglish = !isGermanToEnglish;
             SetLanguageLabels();
+
+            currentWord = currentRoundWords[currentIndex].Split(';')[translateToY ? 0 : 1];
+            WordToTrans.Text = currentWord;
             
+
+
         }
-        
+
         private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
 
@@ -172,6 +205,23 @@ namespace Transalto
                
             }
         }
+        // eventhandler wegen timer
+        private void FeedbackTimer_Tick(object sender, EventArgs e)
+        {
+            WordBorder.Background = new SolidColorBrush(Color.FromRgb(0xE3, 0xF2, 0xFD)); // Setzt den Hintergrund des Borders zurück
+            
+
+
+            feedbackTimer.Stop(); // Stoppt den Timer
+
+            // Entfernen Sie das aktuelle Wort aus der Liste für die aktuelle Runde
+            currentRoundWords.RemoveAt(currentIndex);
+            
+
+            SetNextWord();
+            
+        }
+
 
 
 
