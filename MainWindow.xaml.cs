@@ -43,6 +43,10 @@ namespace Transalto
         // Timer wegen rückmeldung
         private DispatcherTimer feedbackTimer;
 
+        // für wort statistik
+        private Dictionary<string, int> wordMistakes = new Dictionary<string, int>();
+
+
 
 
         public MainWindow()
@@ -60,7 +64,7 @@ namespace Transalto
             #region Timer Konstruktor initialisieren
             //Konstruktor für timer
             feedbackTimer = new DispatcherTimer();
-            feedbackTimer.Interval = TimeSpan.FromSeconds(3);
+            feedbackTimer.Interval = TimeSpan.FromSeconds(1.5);
             feedbackTimer.Tick += FeedbackTimer_Tick;
             #endregion
 
@@ -100,8 +104,6 @@ namespace Transalto
         }
 
 
-
-
         private void SetNextWord()
         {
             // Wenn alle Wörter der aktuellen Runde abgefragt wurden
@@ -132,37 +134,46 @@ namespace Transalto
             string tempCurrentWord = currentWord;
             string result;
 
-            if (IgnoreCaseCheckBox.IsChecked == true)
+            string currentWordLine = currentRoundWords[currentIndex];
+
+
+            if (IgnoreCaseCheckBox.IsChecked == true) 
             {
-                // Wenn die Checkbox aktiviert ist, konvertieren Sie beide Strings in Kleinbuchstaben
                 userTranslation = userTranslation.ToLower();
                 tempCurrentWord = tempCurrentWord.ToLower();
             }
 
             if (translateToY)
             {
-                result = translator.CheckXToY(tempCurrentWord, userTranslation);  // Für Deutsch nach Englisch
+                result = translator.CheckXToY(tempCurrentWord, userTranslation);
             }
             else
             {
-                result = translator.CheckYToX(tempCurrentWord, userTranslation);  // Für Englisch nach Deutsch
+                result = translator.CheckYToX(tempCurrentWord, userTranslation);
             }
 
-            // Speichern Sie das aktuelle Wort, bevor Sie es aus der Liste entfernen
-            string currentWordLine = currentRoundWords[currentIndex];
+            // ... (Rest des Codes bleibt unverändert)
 
-            // Entfernen Sie das aktuelle Wort aus der Liste für die aktuelle Runde
-            currentRoundWords.RemoveAt(currentIndex);
-
-            // Wenn die Übersetzung falsch war, fügen Sie das Wort zur Liste für die nächste Runde hinzu
+            // Wenn die Übersetzung falsch war, fügen Sie das Wort zur Liste für die nächste Runde hinzu und aktualisieren Sie die Statistik
             if (result.StartsWith("Falsch"))
             {
-                WordBorder.Background = new SolidColorBrush(Color.FromRgb(0xFF, 0xA0, 0xA0)); // Setzt den Hintergrund des Borders auf ein helleres Rot
+                WordBorder.Background = new SolidColorBrush(Color.FromRgb(0xFF, 0xA0, 0xA0));
                 nextRoundWords.Add(currentWordLine);
+
+                // Update wordMistakes dictionary
+                if (wordMistakes.ContainsKey(currentWord))
+                {
+                    wordMistakes[currentWord]++;
+                }
+                else
+                {
+                    wordMistakes[currentWord] = 1;
+                }
+                SaveMistakesToFile(); // Speichern Sie die Fehler jedes Mal, wenn sie auftreten
             }
             else
             {
-                WordBorder.Background = new SolidColorBrush(Color.FromRgb(0xA0, 0xFF, 0xA0)); // Setzt den Hintergrund des Borders auf ein helleres Grün
+                WordBorder.Background = new SolidColorBrush(Color.FromRgb(0xA0, 0xFF, 0xA0));
             }
 
             feedbackTimer.Start();  // Startet den Timer, um die Farbe nach 3 Sekunden zurückzusetzen
@@ -221,6 +232,43 @@ namespace Transalto
             SetNextWord();
             
         }
+
+        private void SaveMistakesToFile()
+        {
+            File.WriteAllLines("mistakes.txt", wordMistakes.Select(kvp => $"{kvp.Key};{kvp.Value}"));
+        }
+
+        
+        private void LoadMistakesFromFile()
+        {
+            if (File.Exists("mistakes.txt"))
+            {
+                foreach (var line in File.ReadAllLines("mistakes.txt"))
+                {
+                    var parts = line.Split(';');
+                    wordMistakes[parts[0]] = int.Parse(parts[1]);
+                }
+            }
+        }
+
+        private void ShowStats(object sender, RoutedEventArgs e)
+        {
+            var stats = string.Join("\n", wordMistakes.Select(kvp => $"{kvp.Key}: {kvp.Value} mal"));
+            MessageBox.Show(stats);
+        }
+
+        private void ResetStats(object sender, RoutedEventArgs e)
+        {
+            wordMistakes.Clear();
+            SaveMistakesToFile();
+        }
+
+
+        private void OnStatsButtonClick(object sender, RoutedEventArgs e)
+        {
+            StatsPopup.IsOpen = !StatsPopup.IsOpen;
+        }
+
 
 
 

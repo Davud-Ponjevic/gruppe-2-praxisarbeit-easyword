@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:gruppe_2_easyword"
         mc:Ignorable="d"
         Title="Easyword" Height="700" Width="1000" Background="#F7F7F7">
+    
 
 	<Grid Margin="20">
 		<Grid.RowDefinitions>
@@ -36,6 +37,27 @@
 		</StackPanel>
 		
 		<CheckBox x:Name="IgnoreCaseCheckBox" Grid.Row="4" Content="Groß/klein ignorieren" HorizontalAlignment="Center" Margin="10,10,10,0" Foreground="#555555" FontSize="16"/>
+
+
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
+			<Button Name="StatsButton" Width="50" Height="50" Click="OnStatsButtonClick" Background="Transparent" BorderBrush="Transparent">
+				<Button.Content>
+					<TextBlock Text="📊" FontSize="24" Foreground="DodgerBlue"/>
+				</Button.Content>
+			</Button>
+			<Popup Name="StatsPopup" PlacementTarget="{Binding ElementName=StatsButton}" Placement="Bottom" StaysOpen="False">
+				<Border Background="White" BorderBrush="Gray" BorderThickness="1">
+					<StackPanel>
+						<Button Content="Statistiken anzeigen" Click="ShowStats" Width="200"/>
+						<Separator/>
+						<Button Content="Statistiken zurücksetzen" Click="ResetStats" Width="200"/>
+					</StackPanel>
+				</Border>
+			</Popup>
+		</StackPanel>
+
+
+
 
 
 		<RichTextBox IsReadOnly="True" Grid.Row="4" Margin="10,10,10,10" FontSize="14" Background="#EEEEEE" BorderBrush="#CCCCCC" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="250" Height="100">
