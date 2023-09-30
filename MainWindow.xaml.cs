@@ -50,9 +50,12 @@ namespace Transalto
 
         private WordManagement wordManagement = new WordManagement();
 
+        private const string StatisticFilePath = "StatSaveRest.json";
+        private StatisticsManager statisticsManager;
+
 
         #endregion
-
+       
 
         #region MainCode
 
@@ -63,6 +66,10 @@ namespace Transalto
 
 
 
+            statisticsManager = new StatisticsManager();
+
+
+            var currentStats = statisticsManager.GetStatistics();
             wordMistakes = MistakeManagement.LoadMistakesFromFile();
             var files = FileManagement.LoadFilesFromJson();
             int fileCount = files.Count;
@@ -252,7 +259,8 @@ namespace Transalto
                 {
                     wordMistakes[currentWord] = 1;
                 }
-                MistakeManagement.SaveMistakesToFile(wordMistakes);  // Speichern Sie die Fehler jedes Mal, wenn sie auftreten
+                statisticsManager.UpdateStatistics(currentWord);
+                statisticsManager.Save();  // Speichern Sie die Fehler jedes Mal, wenn sie auftreten
             }
             else
             {
@@ -312,14 +320,15 @@ namespace Transalto
 
         void ShowStats(object sender, RoutedEventArgs e)
         {
-            var stats = string.Join("\n", wordMistakes.Select(kvp => $"{kvp.Key}: {kvp.Value} mal"));
+            var currentStats = statisticsManager.GetStatistics();
+            var stats = string.Join("\n", currentStats.Select(kvp => $"{kvp.Key}: {kvp.Value} mal"));
             MessageBox.Show(stats);
         }
 
         void ResetStats(object sender, RoutedEventArgs e)
         {
-            wordMistakes.Clear();
-            MistakeManagement.SaveMistakesToFile(wordMistakes);
+            statisticsManager.Reset();
+            statisticsManager.Save();
         }
 
 
