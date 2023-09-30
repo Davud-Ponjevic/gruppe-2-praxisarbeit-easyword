@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -51,19 +48,25 @@ namespace Transalto
         private List<string> files = new List<string>();
 
 
+        private WordManagement wordManagement = new WordManagement();
+
 
         #endregion
 
-        
+
         #region MainCode
 
         public MainWindow()
         {
             InitializeComponent();
-            SetLanguageLabels();
-            LoadFilesFromJson();
+            wordManagement.SetLanguageLabels(isGermanToEnglish, Label1);
 
+
+
+            wordMistakes = MistakeManagement.LoadMistakesFromFile();
+            var files = FileManagement.LoadFilesFromJson();
             int fileCount = files.Count;
+
 
             if(fileCount > 0 ) 
             {
@@ -83,7 +86,7 @@ namespace Transalto
                 };
                 if(files.Count < fileCount)
                 {
-                    SaveFilesToJson();
+                    FileManagement.SaveFilesToJson(files);
                     fileCount = files.Count;
                 }
                 
@@ -102,7 +105,7 @@ namespace Transalto
                     {
                         
                         files.Add(openFileDialog.FileName);
-                        SaveFilesToJson();
+                        FileManagement.SaveFilesToJson(files);
                         data = File.ReadAllLines(openFileDialog.FileName);
                     }
                     else
@@ -143,7 +146,7 @@ namespace Transalto
             currentRoundWords = new List<string>(data);
             nextRoundWords = new List<string>();
 
-            SetNextWord();
+            wordManagement.SetNextWord(currentRoundWords, nextRoundWords, ref currentIndex, ref currentWord, translateToY, WordToTrans);
 
             #region Timer Konstruktor initialisieren
             //Konstruktor für timer
@@ -169,8 +172,7 @@ namespace Transalto
             if (openFileDialog.ShowDialog() == true)
             {
                 string FullPathOnly = System.IO.Path.GetFullPath(openFileDialog.FileName);
-                files.Add(FullPathOnly);
-                SaveFilesToJson();
+                FileManagement.AddFile(FullPathOnly, files);
 
                 // Daten aus der neuen Datei laden
                 data = File.ReadAllLines(openFileDialog.FileName);
@@ -192,58 +194,20 @@ namespace Transalto
                 currentRoundWords = new List<string>(data);
                 nextRoundWords = new List<string>();
 
-                SetNextWord();
+                wordManagement.SetNextWord(currentRoundWords, nextRoundWords, ref currentIndex, ref currentWord, translateToY, WordToTrans);
 
-                LoadFilesFromJson();  // Laden Sie die aktualisierte Dateiliste
+                // Laden Sie die aktualisierte Dateiliste
+                files = FileManagement.LoadFilesFromJson();
                 FileList.ItemsSource = null;  // Setzen Sie die Datenquelle zurück
                 FileList.ItemsSource = files;  // Weisen Sie die aktualisierte Dateiliste erneut zu
-
             }
         }
 
-         void SaveFilesToJson()
-        {
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(files);
-            File.WriteAllText(jsonFilePath, json); // Verwenden Sie den festgelegten Pfad
-        }
-
-         void LoadFilesFromJson()
-        {
-            if (File.Exists(jsonFilePath)) // Verwenden Sie den festgelegten Pfad
-            {
-                string json = File.ReadAllText(jsonFilePath); // Verwenden Sie den festgelegten Pfad
-                files = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(json);
-
-
-            }
-        }
+        
+         
         #endregion
 
         #region Next Word
-         void SetNextWord()
-        {
-            // Wenn alle Wörter der aktuellen Runde abgefragt wurden
-            if (currentRoundWords.Count == 0)
-            {
-                if (nextRoundWords.Count == 0)
-                {
-                    MessageBox.Show("Alle Wörter wurden korrekt übersetzt!");
-                    this.Close();
-                    return;
-                }
-
-                // Beginnen Sie die nächste Runde
-                currentRoundWords = new List<string>(nextRoundWords);
-                nextRoundWords.Clear();
-            }
-
-            // Wählen Sie zufällig ein Wort aus der aktuellen Runde
-            Random random = new Random();
-            currentIndex = random.Next(0, currentRoundWords.Count);
-
-            currentWord = currentRoundWords[currentIndex].Split(';')[translateToY ? 0 : 1];
-            WordToTrans.Text = currentWord;
-        }
         #endregion
 
         #region testen der Eingabe testResu
@@ -288,7 +252,7 @@ namespace Transalto
                 {
                     wordMistakes[currentWord] = 1;
                 }
-                SaveMistakesToFile(); // Speichern Sie die Fehler jedes Mal, wenn sie auftreten
+                MistakeManagement.SaveMistakesToFile(wordMistakes);  // Speichern Sie die Fehler jedes Mal, wenn sie auftreten
             }
             else
             {
@@ -306,7 +270,7 @@ namespace Transalto
         {
             translateToY = !translateToY;  // Übersetzungsrichtung umschalten
             isGermanToEnglish = !isGermanToEnglish;
-            SetLanguageLabels();
+            wordManagement.SetLanguageLabels(isGermanToEnglish, Label1);
 
             currentWord = currentRoundWords[currentIndex].Split(';')[translateToY ? 0 : 1];
             WordToTrans.Text = currentWord;
@@ -316,30 +280,14 @@ namespace Transalto
         }
         #endregion
 
-        #region Textbox und lables
+
         void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
 
 
 
-        }
-        void SetLanguageLabels()
-        {
-            if (isGermanToEnglish)
-            {
-                // Von Englisch nach Deutsch
-                Label1.Content = "Wort übersetztn auf Englisch";
-               
-            }
-            else
-            {
-                // Von Deutsch nach Englisch
-                Label1.Content = "Wort übersetztn auf Deutsch";
-               
-            }
-        }
-        #endregion
 
+        }
         #region bastand zwischen wort wächseln (Timer)
         // eventhandler wegen timer
         void FeedbackTimer_Tick(object sender, EventArgs e)
@@ -352,32 +300,15 @@ namespace Transalto
 
             // Entfernen Sie das aktuelle Wort aus der Liste für die aktuelle Runde
             currentRoundWords.RemoveAt(currentIndex);
-            
 
-            SetNextWord();
-            
+
+            wordManagement.SetNextWord(currentRoundWords, nextRoundWords, ref currentIndex, ref currentWord, translateToY, WordToTrans);
+
         }
         #endregion
 
         #region Stats von Fehlern
 
-        void SaveMistakesToFile()
-        {
-            File.WriteAllLines("mistakes.txt", wordMistakes.Select(kvp => $"{kvp.Key};{kvp.Value}"));
-        }
-
-        
-        void LoadMistakesFromFile()
-        {
-            if (File.Exists("mistakes.txt"))
-            {
-                foreach (var line in File.ReadAllLines("mistakes.txt"))
-                {
-                    var parts = line.Split(';');
-                    wordMistakes[parts[0]] = int.Parse(parts[1]);
-                }
-            }
-        }
 
         void ShowStats(object sender, RoutedEventArgs e)
         {
@@ -388,7 +319,7 @@ namespace Transalto
         void ResetStats(object sender, RoutedEventArgs e)
         {
             wordMistakes.Clear();
-            SaveMistakesToFile();
+            MistakeManagement.SaveMistakesToFile(wordMistakes);
         }
 
 
@@ -427,7 +358,7 @@ namespace Transalto
                 currentRoundWords = new List<string>(data);
                 nextRoundWords = new List<string>();
 
-                SetNextWord();
+                wordManagement.SetNextWord(currentRoundWords, nextRoundWords, ref currentIndex, ref currentWord, translateToY, WordToTrans);
 
                 // Schließen Sie das Popup
                 FilePopup.IsOpen = false;
@@ -446,16 +377,11 @@ namespace Transalto
             if (FileList.SelectedItem != null)
             {
                 string selectedFile = FileList.SelectedItem.ToString();
-
-                // Entfernen Sie die ausgewählte Datei aus der Liste
-                files.Remove(selectedFile);
+                FileManagement.RemoveFile(selectedFile, files);
 
                 // Aktualisieren Sie die Dateiliste im Popup
                 FileList.ItemsSource = null;
                 FileList.ItemsSource = files;
-
-                // Speichern Sie die aktualisierte Dateiliste in der JSON-Datei
-                SaveFilesToJson();
             }
             else
             {
